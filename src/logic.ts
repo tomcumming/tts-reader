@@ -4,7 +4,13 @@ export type InputTextState = true;
 
 export type ReadState = {
   sentences: string[];
+  current: number;
+  playState: PlayState;
 };
+
+export type PlayState =
+  | { pausedAt: number }
+  | { playing: { from: number; to: number } };
 
 export const defaultState: AppState = {
   inputText: true,
@@ -14,9 +20,14 @@ export type Action = { inputText: string };
 
 export function update(state: AppState, action: Action): AppState {
   if ("inputText" in action) {
+    const sents = Array.from(sentences(action.inputText));
+    if (sents.length === 0) throw new Error(`TODO render error`);
+
     return {
       read: {
-        sentences: Array.from(sentences(action.inputText)),
+        sentences: sents,
+        current: 0,
+        playState: { pausedAt: 0 },
       },
     };
   }
