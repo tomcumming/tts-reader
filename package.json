@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "format": "prettier --write src docs/index.html docs/style.css package.json tsconfig.json",
+    "watch": "tsc --watch",
+    "serve": "python3 -m http.server --directory docs"
+  },
+  "devDependencies": {
+    "prettier": "^2.3.2",
+    "typescript": "^4.3.5"
+  }
+}

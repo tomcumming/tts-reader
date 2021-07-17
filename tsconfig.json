@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "outDir": "docs"
+  },
+  "include": ["src/**/*"]
+}

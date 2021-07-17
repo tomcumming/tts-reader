@@ -1,0 +1,45 @@
+body {
+  --padding: 8px;
+  --br: 4px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+
+  --blue: 224;
+  --white: white;
+
+  --text-md: 20px;
+
+  font-family: var(--font-family);
+}
+
+main {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  overflow: hidden;
+  display: grid;
+}
+
+.textarea {
+  margin: 0;
+  padding: var(--padding);
+  font-family: var(--font-family);
+  font-size: var(--text-md);
+  border: 2px;
+}
+
+.button {
+  border: 0;
+  border-radius: var(--br);
+  background-color: hsl(var(--blue), 100%, 50%);
+  color: var(--white);
+  font-size: 20px;
+  padding: var(--padding);
+}
+
+main.input-text-screen {
+  grid-template-rows: 1fr auto;
+}
