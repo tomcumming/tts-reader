@@ -12,12 +12,15 @@ function fireAction(action: Action) {
 }
 
 function startSpeaking(offset: number, text: string) {
+  speechSynthesis.cancel();
   currentUtterance = new SpeechSynthesisUtterance(text);
-  currentUtterance.addEventListener("start", (e) => console.log("start", e));
-  currentUtterance.addEventListener("boundary", (e) =>
-    console.log("boundry", e)
-  );
-  currentUtterance.addEventListener("end", (e) => console.log("end", e));
+  currentUtterance.onstart = (_e) => fireAction({ playingPosition: offset });
+  currentUtterance.onboundary = (e) =>
+    fireAction({ playingPosition: offset + e.charIndex });
+  currentUtterance.onend = (e) =>
+    fireAction({ finishedSpeech: { error: false } });
+  currentUtterance.onerror = (e) =>
+    fireAction({ finishedSpeech: { error: true } });
   speechSynthesis.speak(currentUtterance);
 }
 

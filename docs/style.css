@@ -5,6 +5,7 @@ body {
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
   --blue: 224;
+  --green: 82;
   --white: white;
 
   --text-md: 20px;
@@ -85,6 +86,14 @@ main.reader-screen > .sentences > .current > .after-paused {
   background: linear-gradient(
     to right,
     hsl(var(--blue), 100%, 75%) var(--cursor-width),
+    var(--white) var(--cursor-width)
+  );
+}
+
+main.reader-screen > .sentences > .current > .after-playing {
+  background: linear-gradient(
+    to right,
+    hsl(var(--green), 100%, 75%) var(--cursor-width),
     var(--white) var(--cursor-width)
   );
 }

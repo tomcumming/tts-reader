@@ -36,7 +36,15 @@ function createInputTextScreen(state: InputTextState) {
   replaceMain(main);
 }
 
-function updateReadScreen(lastState: ReadState, state: ReadState) {}
+function updateReadScreen(lastState: ReadState, state: ReadState) {
+  const main = document.querySelector("main.reader-screen");
+  if (!(main instanceof HTMLElement))
+    throw new Error(`Can't find existing main`);
+
+  renderPreviousSentences(main, lastState, state);
+  renderCurrentSentence(main, lastState, state);
+  renderFutureSentences(main, lastState, state);
+}
 
 function createReadScreen(state: ReadState) {
   const nodes = readerTemplate.content.cloneNode(true);
@@ -80,7 +88,18 @@ function renderCurrentSentence(
     afterElement.appendChild(document.createTextNode(after));
 
     element.appendChild(afterElement);
-  } else throw new Error(`TODO other playstates`);
+  } else if ("playing" in playState) {
+    const before = sentence.substr(0, playState.playing.position);
+    const after = sentence.substr(playState.playing.position);
+
+    element.appendChild(document.createTextNode(before));
+
+    const afterElement = document.createElement("span");
+    afterElement.className = "after-playing";
+    afterElement.appendChild(document.createTextNode(after));
+
+    element.appendChild(afterElement);
+  } else throw new Error("Unexpected playState");
 }
 
 function renderPreviousSentences(

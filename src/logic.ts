@@ -10,13 +10,16 @@ export type ReadState = {
 
 export type PlayState =
   | { pausedAt: number }
-  | { playing: { from: number; to: number } };
+  | { playing: { position: number } };
 
 export const defaultState: AppState = {
   inputText: true,
 };
 
-export type Action = { inputText: string };
+export type Action =
+  | { inputText: string }
+  | { playingPosition: number }
+  | { finishedSpeech: { error: boolean } };
 
 export function update(state: AppState, action: Action): AppState {
   if ("inputText" in action) {
@@ -30,6 +33,30 @@ export function update(state: AppState, action: Action): AppState {
         playState: { pausedAt: 0 },
       },
     };
+  } else if ("playingPosition" in action) {
+    if ("read" in state) {
+      return {
+        read: {
+          ...state.read,
+          playState: { playing: { position: action.playingPosition } },
+        },
+      };
+    } else {
+      console.debug("Update playing pos while not on read screen");
+      return state;
+    }
+  } else if ("finishedSpeech" in action) {
+    if ("read" in state) {
+      return {
+        read: {
+          ...state.read,
+          playState: { pausedAt: 0 },
+        },
+      };
+    } else {
+      console.debug("Finished speech while not on read screen");
+      return state;
+    }
   }
 
   throw new Error(`Unexpected action`);
