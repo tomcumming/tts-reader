@@ -1,4 +1,7 @@
-export type AppState = { inputText: InputTextState } | { read: ReadState };
+export type AppState =
+  | { selectVoice: SelectVoiceState }
+  | { inputText: InputTextState }
+  | { read: ReadState };
 
 export type InputTextState = true;
 
@@ -6,6 +9,11 @@ export type ReadState = {
   sentences: string[];
   current: number;
   playState: PlayState;
+};
+
+export type SelectVoiceState = {
+  voices: SpeechSynthesisVoice[];
+  backTo?: { sentences: string[]; current: number };
 };
 
 export type PlayState =
@@ -17,6 +25,12 @@ export const defaultState: AppState = {
 };
 
 export type Action =
+  | {
+      selectVoice: {
+        voices: SpeechSynthesisVoice[];
+        backTo?: { sentences: string[]; current: number };
+      };
+    }
   | { inputText: string }
   | { playingPosition: number }
   | { finishedSpeech: { error: boolean } };
@@ -57,6 +71,13 @@ export function update(state: AppState, action: Action): AppState {
       console.debug("Finished speech while not on read screen");
       return state;
     }
+  } else if ("selectVoice" in action) {
+    return {
+      selectVoice: {
+        voices: action.selectVoice.voices,
+        backTo: action.selectVoice.backTo,
+      },
+    };
   }
 
   throw new Error(`Unexpected action`);

@@ -52,6 +52,11 @@ main.reader-screen {
   grid-template-rows: 1fr auto;
 }
 
+main.select-voice-screen {
+  overflow: scroll;
+  padding: var(--padding);
+}
+
 main.reader-screen > .sentences {
   display: grid;
   grid-template-rows: 0.5fr auto 0.5fr;
@@ -96,4 +101,11 @@ main.reader-screen > .sentences > .current > .after-playing {
     hsl(var(--green), 100%, 75%) var(--cursor-width),
     var(--white) var(--cursor-width)
   );
+}
+
+main.reader-screen > .controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }

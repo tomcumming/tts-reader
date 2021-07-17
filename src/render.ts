@@ -1,10 +1,19 @@
-import { AppState, InputTextState, ReadState, PlayState } from "./logic.js";
+import {
+  AppState,
+  InputTextState,
+  ReadState,
+  PlayState,
+  SelectVoiceState,
+} from "./logic.js";
 
 const textInputTemplate = document.querySelector(
   "#text-input-screen"
 ) as HTMLTemplateElement;
 const readerTemplate = document.querySelector(
   "#reader-screen"
+) as HTMLTemplateElement;
+const selectVoiceTemplate = document.querySelector(
+  "#select-voice-screen"
 ) as HTMLTemplateElement;
 
 function replaceMain(newElement: HTMLElement) {
@@ -23,6 +32,8 @@ export function updateScreen(lastState: undefined | AppState, state: AppState) {
     if (lastState && "read" in lastState)
       updateReadScreen(lastState.read, state.read);
     else createReadScreen(state.read);
+  } else if ("selectVoice" in state) {
+    createSelectVoiceScreen(state.selectVoice);
   } else throw new Error(`Unexpected state`);
 }
 
@@ -150,4 +161,51 @@ function renderFutureSentences(
       }
     } else throw new Error(`Can't find future sentence list`);
   }
+}
+
+function createSelectVoiceScreen(state: SelectVoiceState) {
+  const nodes = selectVoiceTemplate.content.cloneNode(true) as DocumentFragment;
+
+  const tableBody = nodes.querySelector("tbody");
+  if (!(tableBody instanceof HTMLElement))
+    throw new Error(`Can't find voice table body`);
+
+  for (const voice of state.voices) {
+    const row = document.createElement("tr");
+    for (const text of [
+      voice.name,
+      voice.lang,
+      voice.localService ? "Yes" : "No",
+    ]) {
+      const td = document.createElement("td");
+      td.appendChild(document.createTextNode(text));
+      row.appendChild(td);
+    }
+
+    const btn = document.createElement("button");
+    btn.className = "button";
+    btn.appendChild(document.createTextNode("Select"));
+    const td = document.createElement("td");
+    td.appendChild(btn);
+    row.appendChild(td);
+    tableBody.appendChild(row);
+  }
+
+  {
+    const row = document.createElement("tr");
+    const btn = document.createElement("button");
+    btn.className = "button";
+    btn.appendChild(document.createTextNode("Cancel"));
+    const td = document.createElement("td");
+    td.colSpan = 4;
+    td.appendChild(btn);
+    row.appendChild(td);
+    tableBody.appendChild(row);
+  }
+
+  const main = document.createElement("main");
+  main.className = "select-voice-screen";
+  main.appendChild(nodes);
+
+  replaceMain(main);
 }

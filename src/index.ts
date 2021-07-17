@@ -33,11 +33,25 @@ function onClick(e: MouseEvent) {
       else throw new Error(`Could not find textarea`);
     }
 
-    if (e.target.matches("main.reader-screen > .controls > .play")) {
+    if (e.target.matches("main.reader-screen > .controls .play")) {
       if ("read" in state && "pausedAt" in state.read.playState) {
         const sentence = state.read.sentences[state.read.current];
         const speechStr = sentence.substr(state.read.playState.pausedAt);
         startSpeaking(state.read.playState.pausedAt, sentence);
+      }
+    }
+
+    if (e.target.matches("main.reader-screen > .controls .voice")) {
+      if ("read" in state) {
+        fireAction({
+          selectVoice: {
+            backTo: {
+              sentences: state.read.sentences,
+              current: state.read.current,
+            },
+            voices: speechSynthesis.getVoices(),
+          },
+        });
       }
     }
   }
@@ -45,4 +59,5 @@ function onClick(e: MouseEvent) {
 
 document.body.addEventListener("click", onClick);
 
+speechSynthesis.getVoices();
 updateScreen(undefined, state);

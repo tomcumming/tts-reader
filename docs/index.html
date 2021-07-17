@@ -12,6 +12,18 @@
   <body>
     <main></main>
 
+    <template id="select-voice-screen">
+      <table>
+        <thead>
+          <th>Name</th>
+          <th>Language</th>
+          <th>Local</th>
+          <th></th>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </template>
+
     <template id="text-input-screen">
       <textarea class="textarea" placeholder="Enter text here..."></textarea>
       <button class="button">Continue</button>
@@ -24,7 +36,13 @@
         <ul class="future"></ul>
       </div>
       <div class="controls">
-        <button class="button play">▶</button>
+        <div>
+          <button class="button icon play">▶</button>
+          <button class="button icon pause" style="display: none">⏸</button>
+        </div>
+        <div>
+          <button class="button icon voice">🗣️</button>
+        </div>
       </div>
     </template>
   </body>
