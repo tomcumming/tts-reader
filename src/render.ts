@@ -3,6 +3,7 @@ import {
   InputTextState,
   ReadState,
   SelectVoiceState,
+  Settings,
 } from "./logic.js";
 
 const textInputTemplate = document.querySelector(
@@ -29,8 +30,8 @@ export function updateScreen(lastState: undefined | AppState, state: AppState) {
   if ("inputText" in state) createInputTextScreen(state.inputText);
   else if ("read" in state) {
     if (lastState && "read" in lastState)
-      updateReadScreen(lastState.read, state.read);
-    else createReadScreen(state.read);
+      updateReadScreen(state.settings, lastState.read, state.read);
+    else createReadScreen(state.settings, state.read);
   } else if ("selectVoice" in state) {
     createSelectVoiceScreen(state.selectVoice);
   } else throw new Error(`Unexpected state`);
@@ -46,7 +47,11 @@ function createInputTextScreen(state: InputTextState) {
   replaceMain(main);
 }
 
-function updateReadScreen(lastState: ReadState, state: ReadState) {
+function updateReadScreen(
+  settings: Settings,
+  lastState: ReadState,
+  state: ReadState
+) {
   const main = document.querySelector("main.reader-screen");
   if (!(main instanceof HTMLElement))
     throw new Error(`Can't find existing main`);
@@ -55,10 +60,14 @@ function updateReadScreen(lastState: ReadState, state: ReadState) {
   renderCurrentSentence(main, lastState, state);
   renderFutureSentences(main, lastState, state);
 
-  updateReadControls(main, state);
+  updateReadControls(main, settings, state);
 }
 
-function updateReadControls(parent: HTMLElement, state: ReadState) {
+function updateReadControls(
+  parent: HTMLElement,
+  settings: Settings,
+  state: ReadState
+) {
   const playButton = parent.querySelector(":scope > .controls .button.play") as
     | undefined
     | HTMLElement;
@@ -68,9 +77,14 @@ function updateReadControls(parent: HTMLElement, state: ReadState) {
 
   if (playButton) playButton.hidden = "playing" in state.playState;
   if (pauseButton) pauseButton.hidden = "pausedAt" in state.playState;
+
+  const rateSelect = parent.querySelector(":scope > .controls select.rate") as
+    | undefined
+    | HTMLSelectElement;
+  if (rateSelect) rateSelect.value = settings.rate.toFixed(2);
 }
 
-function createReadScreen(state: ReadState) {
+function createReadScreen(settings: Settings, state: ReadState) {
   const nodes = readerTemplate.content.cloneNode(true);
 
   const main = document.createElement("main");
@@ -81,7 +95,7 @@ function createReadScreen(state: ReadState) {
   renderCurrentSentence(main, undefined, state);
   renderFutureSentences(main, undefined, state);
 
-  updateReadControls(main, state);
+  updateReadControls(main, settings, state);
 
   replaceMain(main);
 }

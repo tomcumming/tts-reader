@@ -17,6 +17,10 @@ let state = defaultState;
 function fireAction(action: Action) {
   const lastState = state;
   state = update(state, action);
+
+  if ("setSettings" in action)
+    localStorage.setItem("settings", JSON.stringify(state.settings));
+
   updateScreen(lastState, state);
 }
 
@@ -27,6 +31,7 @@ function startSpeaking(offset: number, text: string) {
     .getVoices()
     .find((v) => v.voiceURI === state.settings.voiceUri);
   if (selectedVoice) currentUtterance.voice = selectedVoice;
+  currentUtterance.rate = state.settings.rate;
   currentUtterance.onstart = (_e) => fireAction({ playingPosition: offset });
   currentUtterance.onboundary = (e) =>
     fireAction({ playingPosition: offset + e.charIndex });
@@ -82,7 +87,18 @@ function onClick(e: MouseEvent) {
   }
 }
 
+function onChange(e: Event) {
+  if (
+    e.target instanceof HTMLSelectElement &&
+    e.target.matches("main.reader-screen > .controls .rate")
+  ) {
+    const rate = parseFloat(e.target.value);
+    fireAction({ setSettings: { rate } });
+  }
+}
+
 document.body.addEventListener("click", onClick);
+document.body.addEventListener("change", onChange);
 
 speechSynthesis.getVoices();
 updateScreen(undefined, state);
