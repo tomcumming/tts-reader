@@ -1,11 +1,18 @@
-import { defaultState, Action, update } from "./logic.js";
+import { defaultState, Action } from "./logic.js";
+import { update } from "./update.js";
 import { updateScreen } from "./render.js";
 
-let selectedVoiceUri: undefined | string =
-  localStorage.getItem("selectedVoiceUri") || undefined;
 let currentUtterance: undefined | SpeechSynthesisUtterance;
 
 let state = defaultState;
+{
+  const loadedSettings = localStorage.getItem("settings");
+  if (loadedSettings)
+    state = {
+      ...state,
+      settings: JSON.parse(loadedSettings),
+    };
+}
 
 function fireAction(action: Action) {
   const lastState = state;
@@ -18,7 +25,7 @@ function startSpeaking(offset: number, text: string) {
   currentUtterance = new SpeechSynthesisUtterance(text);
   const selectedVoice = speechSynthesis
     .getVoices()
-    .find((v) => v.voiceURI === selectedVoiceUri);
+    .find((v) => v.voiceURI === state.settings.voiceUri);
   if (selectedVoice) currentUtterance.voice = selectedVoice;
   currentUtterance.onstart = (_e) => fireAction({ playingPosition: offset });
   currentUtterance.onboundary = (e) =>
@@ -58,12 +65,14 @@ function onClick(e: MouseEvent) {
     }
 
     if (e.target.matches("main.select-voice-screen tr button")) {
-      selectedVoiceUri =
-        e.target.parentElement?.parentElement?.getAttribute("data-voice") ||
-        undefined;
-      if (selectedVoiceUri)
-        localStorage.setItem("selectedVoiceUri", selectedVoiceUri);
-      fireAction({ voiceConfirmed: { voiceUri: selectedVoiceUri } });
+      const settings = {
+        ...state.settings,
+        voiceUri:
+          e.target.parentElement?.parentElement?.getAttribute("data-voice") ||
+          undefined,
+      };
+      localStorage.setItem("settings", JSON.stringify(settings));
+      fireAction({ voiceConfirmed: settings });
     }
   }
 }

@@ -1,4 +1,11 @@
-export type AppState =
+export type AppState = { settings: Settings } & ScreenState;
+
+export type Settings = {
+  voiceUri?: string;
+  rate: number;
+};
+
+export type ScreenState =
   | { selectVoice: SelectVoiceState }
   | { inputText: InputTextState }
   | { read: ReadState };
@@ -22,83 +29,20 @@ export type PlayState =
 
 export const defaultState: AppState = {
   inputText: true,
+  settings: { rate: 1 },
 };
 
 export type Action =
+  | { setSettings: Partial<Settings> }
   | { selectVoice: { voices: SpeechSynthesisVoice[] } }
-  | { voiceConfirmed: { voiceUri?: string } }
+  | { voiceConfirmed: Settings }
   | { inputText: string }
   | { playingPosition: number }
   | { finishedSpeech: { error: boolean } };
 
-export function update(state: AppState, action: Action): AppState {
-  if ("inputText" in action) {
-    const sents = Array.from(sentences(action.inputText));
-    if (sents.length === 0) throw new Error(`TODO render error`);
-
-    return {
-      read: {
-        sentences: sents,
-        current: 0,
-        playState: { pausedAt: 0 },
-      },
-    };
-  } else if ("playingPosition" in action) {
-    if ("read" in state) {
-      return {
-        read: {
-          ...state.read,
-          playState: { playing: { position: action.playingPosition } },
-        },
-      };
-    } else {
-      console.debug("Update playing pos while not on read screen");
-      return state;
-    }
-  } else if ("finishedSpeech" in action) {
-    if ("read" in state) {
-      return {
-        read: {
-          ...state.read,
-          playState: { pausedAt: 0 },
-        },
-      };
-    } else {
-      console.debug("Finished speech while not on read screen");
-      return state;
-    }
-  } else if ("selectVoice" in action) {
-    const backTo =
-      "read" in state
-        ? { sentences: state.read.sentences, current: state.read.current }
-        : undefined;
-
-    return {
-      selectVoice: {
-        voices: action.selectVoice.voices,
-        backTo,
-      },
-    };
-  } else if ("voiceConfirmed" in action) {
-    if ("selectVoice" in state && state.selectVoice.backTo) {
-      return {
-        read: {
-          sentences: state.selectVoice.backTo.sentences,
-          current: state.selectVoice.backTo.current,
-          playState: { pausedAt: 0 },
-        },
-      };
-    } else {
-      return { inputText: true };
-    }
-  }
-
-  throw new Error(`Unexpected action`);
-}
-
 const sentenceTerminator = /[。︀։।]|\n|\.(?:\s|$)/mu;
 
-function* sentences(inputText: string) {
+export function* sentences(inputText: string) {
   while (inputText.length > 0) {
     const match = sentenceTerminator.exec(inputText);
     if (match) {
