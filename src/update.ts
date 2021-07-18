@@ -4,7 +4,12 @@ export function update(state: AppState, action: Action): AppState {
   if ("inputText" in action) return inputText(state, action.inputText);
   else if ("playingPosition" in action)
     return playingPosition(state, action.playingPosition);
-  else if ("paused" in action) return paused(state, action.paused);
+  else if ("movePaused" in action)
+    return movePaused(
+      state,
+      action.movePaused.afterCursor,
+      action.movePaused.offset
+    );
   else if ("stoppedSpeech" in action)
     return stoppedSpeech(state, action.stoppedSpeech.error);
   else if ("selectVoice" in action)
@@ -46,8 +51,15 @@ function playingPosition(state: AppState, position: number): AppState {
   }
 }
 
-function paused(state: AppState, pausedAt: number): AppState {
-  if ("read" in state) {
+function movePaused(
+  state: AppState,
+  afterCursor: boolean,
+  offset: number
+): AppState {
+  if ("read" in state && "pausedAt" in state.read.playState) {
+    const pausedAt = afterCursor
+      ? state.read.playState.pausedAt + offset
+      : offset;
     return {
       settings: state.settings,
       read: {
@@ -56,7 +68,7 @@ function paused(state: AppState, pausedAt: number): AppState {
       },
     };
   } else {
-    console.debug("Paused while not on read screen");
+    console.debug("Moved paused position while not paused");
     return state;
   }
 }

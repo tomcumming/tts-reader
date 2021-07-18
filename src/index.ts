@@ -84,6 +84,21 @@ function onClick(e: MouseEvent) {
       localStorage.setItem("settings", JSON.stringify(settings));
       fireAction({ voiceConfirmed: settings });
     }
+
+    if (
+      e.target.matches("main.reader-screen > .sentences > .current") ||
+      e.target.matches(
+        "main.reader-screen > .sentences > .current > .after-paused"
+      )
+    ) {
+      const selection = window.getSelection();
+      if (selection) {
+        const afterCursor =
+          selection.focusNode?.parentElement?.matches(".after-paused") || false;
+        const offset = selection.focusOffset;
+        fireAction({ movePaused: { afterCursor, offset } });
+      }
+    }
   }
 }
 
