@@ -25,12 +25,8 @@ export const defaultState: AppState = {
 };
 
 export type Action =
-  | {
-      selectVoice: {
-        voices: SpeechSynthesisVoice[];
-        backTo?: { sentences: string[]; current: number };
-      };
-    }
+  | { selectVoice: { voices: SpeechSynthesisVoice[] } }
+  | { voiceConfirmed: { voiceUri?: string } }
   | { inputText: string }
   | { playingPosition: number }
   | { finishedSpeech: { error: boolean } };
@@ -72,12 +68,29 @@ export function update(state: AppState, action: Action): AppState {
       return state;
     }
   } else if ("selectVoice" in action) {
+    const backTo =
+      "read" in state
+        ? { sentences: state.read.sentences, current: state.read.current }
+        : undefined;
+
     return {
       selectVoice: {
         voices: action.selectVoice.voices,
-        backTo: action.selectVoice.backTo,
+        backTo,
       },
     };
+  } else if ("voiceConfirmed" in action) {
+    if ("selectVoice" in state && state.selectVoice.backTo) {
+      return {
+        read: {
+          sentences: state.selectVoice.backTo.sentences,
+          current: state.selectVoice.backTo.current,
+          playState: { pausedAt: 0 },
+        },
+      };
+    } else {
+      return { inputText: true };
+    }
   }
 
   throw new Error(`Unexpected action`);

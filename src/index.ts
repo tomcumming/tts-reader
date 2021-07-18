@@ -1,6 +1,8 @@
 import { defaultState, Action, update } from "./logic.js";
 import { updateScreen } from "./render.js";
 
+let selectedVoiceUri: undefined | string =
+  localStorage.getItem("selectedVoiceUri") || undefined;
 let currentUtterance: undefined | SpeechSynthesisUtterance;
 
 let state = defaultState;
@@ -14,6 +16,10 @@ function fireAction(action: Action) {
 function startSpeaking(offset: number, text: string) {
   speechSynthesis.cancel();
   currentUtterance = new SpeechSynthesisUtterance(text);
+  const selectedVoice = speechSynthesis
+    .getVoices()
+    .find((v) => v.voiceURI === selectedVoiceUri);
+  if (selectedVoice) currentUtterance.voice = selectedVoice;
   currentUtterance.onstart = (_e) => fireAction({ playingPosition: offset });
   currentUtterance.onboundary = (e) =>
     fireAction({ playingPosition: offset + e.charIndex });
@@ -45,14 +51,19 @@ function onClick(e: MouseEvent) {
       if ("read" in state) {
         fireAction({
           selectVoice: {
-            backTo: {
-              sentences: state.read.sentences,
-              current: state.read.current,
-            },
             voices: speechSynthesis.getVoices(),
           },
         });
       }
+    }
+
+    if (e.target.matches("main.select-voice-screen tr button")) {
+      selectedVoiceUri =
+        e.target.parentElement?.parentElement?.getAttribute("data-voice") ||
+        undefined;
+      if (selectedVoiceUri)
+        localStorage.setItem("selectedVoiceUri", selectedVoiceUri);
+      fireAction({ voiceConfirmed: { voiceUri: selectedVoiceUri } });
     }
   }
 }

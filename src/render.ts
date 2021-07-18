@@ -2,7 +2,6 @@ import {
   AppState,
   InputTextState,
   ReadState,
-  PlayState,
   SelectVoiceState,
 } from "./logic.js";
 
@@ -172,6 +171,7 @@ function createSelectVoiceScreen(state: SelectVoiceState) {
 
   for (const voice of state.voices) {
     const row = document.createElement("tr");
+    row.setAttribute("data-voice", voice.voiceURI);
     for (const text of [
       voice.name,
       voice.lang,
