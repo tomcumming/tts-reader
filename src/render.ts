@@ -54,6 +54,20 @@ function updateReadScreen(lastState: ReadState, state: ReadState) {
   renderPreviousSentences(main, lastState, state);
   renderCurrentSentence(main, lastState, state);
   renderFutureSentences(main, lastState, state);
+
+  updateReadControls(main, state);
+}
+
+function updateReadControls(parent: HTMLElement, state: ReadState) {
+  const playButton = parent.querySelector(":scope > .controls .button.play") as
+    | undefined
+    | HTMLElement;
+  const pauseButton = parent.querySelector(
+    ":scope > .controls .button.pause"
+  ) as undefined | HTMLElement;
+
+  if (playButton) playButton.hidden = "playing" in state.playState;
+  if (pauseButton) pauseButton.hidden = "pausedAt" in state.playState;
 }
 
 function createReadScreen(state: ReadState) {
@@ -66,6 +80,8 @@ function createReadScreen(state: ReadState) {
   renderPreviousSentences(main, undefined, state);
   renderCurrentSentence(main, undefined, state);
   renderFutureSentences(main, undefined, state);
+
+  updateReadControls(main, state);
 
   replaceMain(main);
 }

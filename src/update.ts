@@ -4,8 +4,9 @@ export function update(state: AppState, action: Action): AppState {
   if ("inputText" in action) return inputText(state, action.inputText);
   else if ("playingPosition" in action)
     return playingPosition(state, action.playingPosition);
-  else if ("finishedSpeech" in action)
-    return finishedSpeech(state, action.finishedSpeech.error);
+  else if ("paused" in action) return paused(state, action.paused);
+  else if ("stoppedSpeech" in action)
+    return stoppedSpeech(state, action.stoppedSpeech.error);
   else if ("selectVoice" in action)
     return selectVoice(state, action.selectVoice.voices);
   else if ("voiceConfirmed" in action)
@@ -45,13 +46,33 @@ function playingPosition(state: AppState, position: number): AppState {
   }
 }
 
-function finishedSpeech(state: AppState, error: boolean): AppState {
+function paused(state: AppState, pausedAt: number): AppState {
   if ("read" in state) {
     return {
       settings: state.settings,
       read: {
         ...state.read,
-        playState: { pausedAt: 0 },
+        playState: { pausedAt },
+      },
+    };
+  } else {
+    console.debug("Paused while not on read screen");
+    return state;
+  }
+}
+
+function stoppedSpeech(state: AppState, error: boolean): AppState {
+  if ("read" in state) {
+    return {
+      settings: state.settings,
+      read: {
+        ...state.read,
+        playState: {
+          pausedAt:
+            `playing` in state.read.playState
+              ? state.read.playState.playing.position
+              : 0,
+        },
       },
     };
   } else {

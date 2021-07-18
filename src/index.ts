@@ -31,9 +31,9 @@ function startSpeaking(offset: number, text: string) {
   currentUtterance.onboundary = (e) =>
     fireAction({ playingPosition: offset + e.charIndex });
   currentUtterance.onend = (e) =>
-    fireAction({ finishedSpeech: { error: false } });
+    fireAction({ stoppedSpeech: { error: false } });
   currentUtterance.onerror = (e) =>
-    fireAction({ finishedSpeech: { error: true } });
+    fireAction({ stoppedSpeech: { error: true } });
   speechSynthesis.speak(currentUtterance);
 }
 
@@ -50,8 +50,13 @@ function onClick(e: MouseEvent) {
       if ("read" in state && "pausedAt" in state.read.playState) {
         const sentence = state.read.sentences[state.read.current];
         const speechStr = sentence.substr(state.read.playState.pausedAt);
-        startSpeaking(state.read.playState.pausedAt, sentence);
+        startSpeaking(state.read.playState.pausedAt, speechStr);
       }
+    }
+
+    if (e.target.matches("main.reader-screen > .controls .pause")) {
+      console.log("pausing");
+      speechSynthesis.cancel();
     }
 
     if (e.target.matches("main.reader-screen > .controls .voice")) {

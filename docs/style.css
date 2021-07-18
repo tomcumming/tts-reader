@@ -44,6 +44,10 @@ main {
   padding: var(--padding);
 }
 
+.button.icon {
+  width: 2em;
+}
+
 main.input-text-screen {
   grid-template-rows: 1fr auto;
 }
@@ -108,4 +112,12 @@ main.reader-screen > .controls {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+main.reader-screen > .controls > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: var(--padding);
 }

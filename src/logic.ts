@@ -38,7 +38,8 @@ export type Action =
   | { voiceConfirmed: Settings }
   | { inputText: string }
   | { playingPosition: number }
-  | { finishedSpeech: { error: boolean } };
+  | { paused: number }
+  | { stoppedSpeech: { error: boolean } };
 
 const sentenceTerminator = /[。︀։।]|\n|\.(?:\s|$)/mu;
 
