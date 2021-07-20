@@ -1,6 +1,7 @@
 import { defaultState } from "./logic.js";
 import { update } from "./update.js";
 import { updateScreen } from "./render.js";
+import { selectionLength } from "./selection.js";
 let currentUtterance;
 let state = defaultState;
 {
@@ -83,7 +84,7 @@ function onClick(e) {
         if (e.target.matches("main.reader-screen > .sentences > .current") ||
             e.target.matches("main.reader-screen > .sentences > .current > .after-paused")) {
             const selection = window.getSelection();
-            if (selection) {
+            if (selection && selectionLength(selection) === 0) {
                 const afterCursor = selection.focusNode?.parentElement?.matches(".after-paused") || false;
                 const offset = selection.focusOffset;
                 fireAction({ movePaused: { afterCursor, offset } });
