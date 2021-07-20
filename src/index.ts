@@ -1,6 +1,7 @@
 import { defaultState, Action } from "./logic.js";
 import { update } from "./update.js";
 import { updateScreen } from "./render.js";
+import { selectionLength } from "./selection.js";
 
 let currentUtterance: undefined | SpeechSynthesisUtterance;
 
@@ -102,7 +103,7 @@ function onClick(e: MouseEvent) {
       )
     ) {
       const selection = window.getSelection();
-      if (selection) {
+      if (selection && selectionLength(selection) === 0) {
         const afterCursor =
           selection.focusNode?.parentElement?.matches(".after-paused") || false;
         const offset = selection.focusOffset;
