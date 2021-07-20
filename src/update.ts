@@ -18,6 +18,8 @@ export function update(state: AppState, action: Action): AppState {
     return voiceConfirmed(state, action.voiceConfirmed);
   else if ("setSettings" in action)
     return updateSettings(state, action.setSettings);
+  else if ("changeSentence" in action)
+    return changeSentence(state, action.changeSentence);
 
   throw new Error(`Unexpected action`);
 }
@@ -137,4 +139,23 @@ function updateSettings(
       ...settings,
     },
   };
+}
+
+function changeSentence(state: AppState, delta: number): AppState {
+  if ("read" in state) {
+    return {
+      settings: state.settings,
+      read: {
+        playState: { pausedAt: 0 },
+        current: Math.max(
+          0,
+          Math.min(state.read.sentences.length - 1, state.read.current + delta)
+        ),
+        sentences: state.read.sentences,
+      },
+    };
+  } else {
+    console.warn("Changed sentence while not reading");
+    return state;
+  }
 }

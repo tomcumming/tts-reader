@@ -74,9 +74,18 @@ function updateReadControls(
   const pauseButton = parent.querySelector(
     ":scope > .controls .button.pause"
   ) as undefined | HTMLElement;
+  const prevButton = parent.querySelector(":scope > .controls .button.prev");
+  const nextButton = parent.querySelector(":scope > .controls .button.next");
 
   if (playButton) playButton.hidden = "playing" in state.playState;
   if (pauseButton) pauseButton.hidden = "pausedAt" in state.playState;
+
+  if (prevButton instanceof HTMLButtonElement)
+    prevButton.disabled = "playing" in state.playState || state.current === 0;
+  if (nextButton instanceof HTMLButtonElement)
+    nextButton.disabled =
+      "playing" in state.playState ||
+      state.current + 1 >= state.sentences.length;
 
   const rateSelect = parent.querySelector(":scope > .controls select.rate") as
     | undefined

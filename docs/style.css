@@ -42,6 +42,12 @@ main {
   color: var(--white);
   font-size: 20px;
   padding: var(--padding);
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .button.icon {

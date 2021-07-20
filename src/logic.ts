@@ -39,7 +39,8 @@ export type Action =
   | { inputText: string }
   | { playingPosition: number }
   | { movePaused: { afterCursor: boolean; offset: number } }
-  | { stoppedSpeech: { error: boolean } };
+  | { stoppedSpeech: { error: boolean } }
+  | { changeSentence: number };
 
 const sentenceTerminator = /[。︀։।]|\n|\.(?:\s|$)/mu;
 

@@ -60,9 +60,13 @@ function onClick(e: MouseEvent) {
     }
 
     if (e.target.matches("main.reader-screen > .controls .pause")) {
-      console.log("pausing");
       speechSynthesis.cancel();
     }
+
+    if (e.target.matches("main.reader-screen > .controls .prev"))
+      fireAction({ changeSentence: -1 });
+    if (e.target.matches("main.reader-screen > .controls .next"))
+      fireAction({ changeSentence: 1 });
 
     if (e.target.matches("main.reader-screen > .controls .voice")) {
       if ("read" in state) {
