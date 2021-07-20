@@ -36,17 +36,24 @@ export type Action =
   | { setSettings: Partial<Settings> }
   | { selectVoice: { voices: SpeechSynthesisVoice[] } }
   | { voiceConfirmed: Settings }
-  | { inputText: string }
+  | { inputText: { text: string; mode: "phrases" | "sentences" } }
   | { playingPosition: number }
   | { movePaused: { afterCursor: boolean; offset: number } }
   | { stoppedSpeech: { error: boolean } }
   | { changeSentence: number };
 
 const sentenceTerminator = /[。︀։।]|\n|\.(?:\s|$)/mu;
+const phraseTerminator = new RegExp(
+  sentenceTerminator.source + `|[,，、，；]`,
+  "mu"
+);
 
-export function* sentences(inputText: string) {
+export function* sentences(inputText: string, mode: "phrases" | "sentences") {
   while (inputText.length > 0) {
-    const match = sentenceTerminator.exec(inputText);
+    const match =
+      mode === "phrases"
+        ? phraseTerminator.exec(inputText)
+        : sentenceTerminator.exec(inputText);
     if (match) {
       const end = match.index + match[0].length;
       const line = inputText.substr(0, end).trim();

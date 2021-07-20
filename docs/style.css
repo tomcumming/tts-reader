@@ -67,6 +67,14 @@ main.select-voice-screen {
   padding: var(--padding);
 }
 
+main.input-text-screen > div:nth-child(2) {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: var(--padding);
+}
+
 main.reader-screen > .sentences {
   display: grid;
   grid-template-rows: 0.5fr auto 0.5fr;

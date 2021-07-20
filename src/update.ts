@@ -1,7 +1,8 @@
 import { AppState, Action, sentences, Settings } from "./logic.js";
 
 export function update(state: AppState, action: Action): AppState {
-  if ("inputText" in action) return inputText(state, action.inputText);
+  if ("inputText" in action)
+    return inputText(state, action.inputText.text, action.inputText.mode);
   else if ("playingPosition" in action)
     return playingPosition(state, action.playingPosition);
   else if ("movePaused" in action)
@@ -24,8 +25,12 @@ export function update(state: AppState, action: Action): AppState {
   throw new Error(`Unexpected action`);
 }
 
-function inputText(state: AppState, text: string): AppState {
-  const sents = Array.from(sentences(text));
+function inputText(
+  state: AppState,
+  text: string,
+  mode: "phrases" | "sentences"
+): AppState {
+  const sents = Array.from(sentences(text, mode));
   if (sents.length === 0) throw new Error(`TODO render error`);
 
   return {

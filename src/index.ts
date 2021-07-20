@@ -44,10 +44,16 @@ function startSpeaking(offset: number, text: string) {
 
 function onClick(e: MouseEvent) {
   if (e.target instanceof HTMLElement) {
-    if (e.target.matches("main.input-text-screen > button")) {
+    if (e.target.matches("main.input-text-screen > div >button")) {
+      const phrases = e.target.matches(".phrases");
       const textArea = document.querySelector("textarea");
       if (textArea instanceof HTMLTextAreaElement)
-        fireAction({ inputText: textArea.value });
+        fireAction({
+          inputText: {
+            text: textArea.value,
+            mode: phrases ? "phrases" : "sentences",
+          },
+        });
       else throw new Error(`Could not find textarea`);
     }
 
