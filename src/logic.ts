@@ -42,9 +42,9 @@ export type Action =
   | { stoppedSpeech: { error: boolean } }
   | { changeSentence: number };
 
-const sentenceTerminator = /[。︀։।]|\n|\.(?:\s|$)/mu;
+const sentenceTerminator = /[．。︀!ǃ！?？]|\n|\.(?:\s|$)/mu;
 const phraseTerminator = new RegExp(
-  sentenceTerminator.source + `|[,，、，；]`,
+  sentenceTerminator.source + `|[,，、，;；]`,
   "mu"
 );
 
