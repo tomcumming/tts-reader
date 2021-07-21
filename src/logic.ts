@@ -40,7 +40,8 @@ export type Action =
   | { playingPosition: number }
   | { movePaused: { afterCursor: boolean; offset: number } }
   | { stoppedSpeech: { error: boolean } }
-  | { changeSentence: number };
+  | { changeSentence: number }
+  | { selectText: true };
 
 const sentenceTerminator = /[．。︀!ǃ！?？]|\n|\.(?:\s|$)/mu;
 const phraseTerminator = new RegExp(
