@@ -63,6 +63,8 @@ function onClick(e) {
             fireAction({ changeSentence: -1 });
         if (e.target.matches("main.reader-screen > .controls .next"))
             fireAction({ changeSentence: 1 });
+        if (e.target.matches("main.reader-screen > .controls .back"))
+            fireAction({ selectText: true });
         if (e.target.matches("main.reader-screen > .controls .voice")) {
             if ("read" in state) {
                 fireAction({

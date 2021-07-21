@@ -2,8 +2,8 @@ export const defaultState = {
     inputText: true,
     settings: { rate: 1 },
 };
-const sentenceTerminator = /[。︀։।]|\n|\.(?:\s|$)/mu;
-const phraseTerminator = new RegExp(sentenceTerminator.source + `|[,，、，；]`, "mu");
+const sentenceTerminator = /[．。︀!ǃ！?？]|\n|\.(?:\s|$)/mu;
+const phraseTerminator = new RegExp(sentenceTerminator.source + `|[,，、，;；]`, "mu");
 export function* sentences(inputText, mode) {
     while (inputText.length > 0) {
         const match = mode === "phrases"

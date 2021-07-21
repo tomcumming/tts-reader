@@ -16,6 +16,8 @@ export function update(state, action) {
         return updateSettings(state, action.setSettings);
     else if ("changeSentence" in action)
         return changeSentence(state, action.changeSentence);
+    else if ("selectText" in action)
+        return selectText(state);
     throw new Error(`Unexpected action`);
 }
 function inputText(state, text, mode) {
@@ -134,4 +136,10 @@ function changeSentence(state, delta) {
         console.warn("Changed sentence while not reading");
         return state;
     }
+}
+function selectText(state) {
+    return {
+        settings: state.settings,
+        inputText: true,
+    };
 }
