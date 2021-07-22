@@ -2,6 +2,7 @@ import { defaultState } from "./logic.js";
 import { update } from "./update.js";
 import { updateScreen } from "./render.js";
 import { selectionLength } from "./selection.js";
+let userStopped = false;
 let currentUtterance;
 let state = defaultState;
 {
@@ -21,6 +22,7 @@ function fireAction(action) {
 }
 function startSpeaking(offset, text) {
     speechSynthesis.cancel();
+    userStopped = false;
     currentUtterance = new SpeechSynthesisUtterance(text);
     const selectedVoice = speechSynthesis
         .getVoices()
@@ -30,9 +32,22 @@ function startSpeaking(offset, text) {
     currentUtterance.rate = state.settings.rate;
     currentUtterance.onstart = (_e) => fireAction({ playingPosition: offset });
     currentUtterance.onboundary = (e) => fireAction({ playingPosition: offset + e.charIndex });
-    currentUtterance.onend = (e) => fireAction({ stoppedSpeech: { error: false } });
-    currentUtterance.onerror = (e) => fireAction({ stoppedSpeech: { error: true } });
+    currentUtterance.onend = (e) => fireAction({ stoppedSpeech: userStopped ? "paused" : "finished" });
+    currentUtterance.onerror = (e) => fireAction({ stoppedSpeech: "error" });
     speechSynthesis.speak(currentUtterance);
+}
+function toggleSpeaking() {
+    if ("read" in state) {
+        if ("pausedAt" in state.read.playState) {
+            const sentence = state.read.sentences[state.read.current];
+            const speechStr = sentence.substr(state.read.playState.pausedAt);
+            startSpeaking(state.read.playState.pausedAt, speechStr);
+        }
+        else if ("playing" in state.read.playState) {
+            userStopped = true;
+            speechSynthesis.cancel();
+        }
+    }
 }
 function onClick(e) {
     if (e.target instanceof HTMLElement) {
@@ -49,16 +64,10 @@ function onClick(e) {
             else
                 throw new Error(`Could not find textarea`);
         }
-        if (e.target.matches("main.reader-screen > .controls .play")) {
-            if ("read" in state && "pausedAt" in state.read.playState) {
-                const sentence = state.read.sentences[state.read.current];
-                const speechStr = sentence.substr(state.read.playState.pausedAt);
-                startSpeaking(state.read.playState.pausedAt, speechStr);
-            }
-        }
-        if (e.target.matches("main.reader-screen > .controls .pause")) {
-            speechSynthesis.cancel();
-        }
+        if (e.target.matches("main.reader-screen > .controls .play"))
+            toggleSpeaking();
+        if (e.target.matches("main.reader-screen > .controls .pause"))
+            toggleSpeaking();
         if (e.target.matches("main.reader-screen > .controls .prev"))
             fireAction({ changeSentence: -1 });
         if (e.target.matches("main.reader-screen > .controls .next"))
@@ -101,7 +110,20 @@ function onChange(e) {
         fireAction({ setSettings: { rate } });
     }
 }
+function onKeyDown(e) {
+    if ("read" in state) {
+        if (e.key === "ArrowUp")
+            fireAction({ changeSentence: -1 });
+        if (e.key === "ArrowDown")
+            fireAction({ changeSentence: 1 });
+        if (e.key === " ")
+            toggleSpeaking();
+        if (e.key === "ArrowLeft")
+            fireAction({ moveBackWord: true });
+    }
+}
 document.body.addEventListener("click", onClick);
 document.body.addEventListener("change", onChange);
+document.body.addEventListener("keydown", onKeyDown);
 speechSynthesis.getVoices();
 updateScreen(undefined, state);

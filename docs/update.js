@@ -1,4 +1,4 @@
-import { sentences } from "./logic.js";
+import { sentences, moveToLastWord, } from "./logic.js";
 export function update(state, action) {
     if ("inputText" in action)
         return inputText(state, action.inputText.text, action.inputText.mode);
@@ -7,7 +7,7 @@ export function update(state, action) {
     else if ("movePaused" in action)
         return movePaused(state, action.movePaused.afterCursor, action.movePaused.offset);
     else if ("stoppedSpeech" in action)
-        return stoppedSpeech(state, action.stoppedSpeech.error);
+        return stoppedSpeech(state, action.stoppedSpeech);
     else if ("selectVoice" in action)
         return selectVoice(state, action.selectVoice.voices);
     else if ("voiceConfirmed" in action)
@@ -18,6 +18,8 @@ export function update(state, action) {
         return changeSentence(state, action.changeSentence);
     else if ("selectText" in action)
         return selectText(state);
+    else if ("moveBackWord" in action)
+        return moveBackWord(state);
     throw new Error(`Unexpected action`);
 }
 function inputText(state, text, mode) {
@@ -66,14 +68,14 @@ function movePaused(state, afterCursor, offset) {
         return state;
     }
 }
-function stoppedSpeech(state, error) {
+function stoppedSpeech(state, reason) {
     if ("read" in state) {
         return {
             settings: state.settings,
             read: {
                 ...state.read,
                 playState: {
-                    pausedAt: `playing` in state.read.playState
+                    pausedAt: `playing` in state.read.playState && reason === "paused"
                         ? state.read.playState.playing.position
                         : 0,
                 },
@@ -122,7 +124,7 @@ function updateSettings(state, settings) {
     };
 }
 function changeSentence(state, delta) {
-    if ("read" in state) {
+    if ("read" in state && "pausedAt" in state.read.playState) {
         return {
             settings: state.settings,
             read: {
@@ -133,7 +135,7 @@ function changeSentence(state, delta) {
         };
     }
     else {
-        console.warn("Changed sentence while not reading");
+        console.warn("Changed sentence while not reading paused");
         return state;
     }
 }
@@ -142,4 +144,22 @@ function selectText(state) {
         settings: state.settings,
         inputText: true,
     };
+}
+function moveBackWord(state) {
+    if ("read" in state && "pausedAt" in state.read.playState) {
+        const currentSentence = state.read.sentences[state.read.current];
+        const newPosition = moveToLastWord(currentSentence, state.read.playState.pausedAt);
+        return {
+            settings: state.settings,
+            read: {
+                sentences: state.read.sentences,
+                current: state.read.current,
+                playState: { pausedAt: newPosition },
+            },
+        };
+    }
+    else {
+        console.warn("Move back word while not reading paused");
+        return state;
+    }
 }
