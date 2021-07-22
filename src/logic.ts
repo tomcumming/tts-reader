@@ -39,7 +39,7 @@ export type Action =
   | { inputText: { text: string; mode: "phrases" | "sentences" } }
   | { playingPosition: number }
   | { movePaused: { afterCursor: boolean; offset: number } }
-  | { stoppedSpeech: { error: boolean } }
+  | { stoppedSpeech: "error" | "paused" | "finished" }
   | { changeSentence: number }
   | { selectText: true };
 

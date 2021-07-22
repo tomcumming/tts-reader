@@ -3,6 +3,7 @@ import { update } from "./update.js";
 import { updateScreen } from "./render.js";
 import { selectionLength } from "./selection.js";
 
+let userStopped = false;
 let currentUtterance: undefined | SpeechSynthesisUtterance;
 
 let state = defaultState;
@@ -27,6 +28,7 @@ function fireAction(action: Action) {
 
 function startSpeaking(offset: number, text: string) {
   speechSynthesis.cancel();
+  userStopped = false;
   currentUtterance = new SpeechSynthesisUtterance(text);
   const selectedVoice = speechSynthesis
     .getVoices()
@@ -37,9 +39,8 @@ function startSpeaking(offset: number, text: string) {
   currentUtterance.onboundary = (e) =>
     fireAction({ playingPosition: offset + e.charIndex });
   currentUtterance.onend = (e) =>
-    fireAction({ stoppedSpeech: { error: false } });
-  currentUtterance.onerror = (e) =>
-    fireAction({ stoppedSpeech: { error: true } });
+    fireAction({ stoppedSpeech: userStopped ? "paused" : "finished" });
+  currentUtterance.onerror = (e) => fireAction({ stoppedSpeech: "error" });
   speechSynthesis.speak(currentUtterance);
 }
 
@@ -67,6 +68,7 @@ function onClick(e: MouseEvent) {
     }
 
     if (e.target.matches("main.reader-screen > .controls .pause")) {
+      userStopped = true;
       speechSynthesis.cancel();
     }
 

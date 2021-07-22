@@ -12,7 +12,7 @@ export function update(state: AppState, action: Action): AppState {
       action.movePaused.offset
     );
   else if ("stoppedSpeech" in action)
-    return stoppedSpeech(state, action.stoppedSpeech.error);
+    return stoppedSpeech(state, action.stoppedSpeech);
   else if ("selectVoice" in action)
     return selectVoice(state, action.selectVoice.voices);
   else if ("voiceConfirmed" in action)
@@ -81,7 +81,10 @@ function movePaused(
   }
 }
 
-function stoppedSpeech(state: AppState, error: boolean): AppState {
+function stoppedSpeech(
+  state: AppState,
+  reason: "error" | "paused" | "finished"
+): AppState {
   if ("read" in state) {
     return {
       settings: state.settings,
@@ -89,7 +92,7 @@ function stoppedSpeech(state: AppState, error: boolean): AppState {
         ...state.read,
         playState: {
           pausedAt:
-            `playing` in state.read.playState
+            `playing` in state.read.playState && reason === "paused"
               ? state.read.playState.playing.position
               : 0,
         },
