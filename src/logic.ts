@@ -45,7 +45,7 @@ export type Action =
 
 const sentenceTerminator = /[．。︀!ǃ！?？]|\n|\.(?:\s|$)/mu;
 const phraseTerminator = new RegExp(
-  sentenceTerminator.source + `|[,，、，;；]`,
+  sentenceTerminator.source + `|[，、，;；]|,(?:\\D|$)`,
   "mu"
 );
 
