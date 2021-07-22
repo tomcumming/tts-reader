@@ -1,4 +1,4 @@
-import { defaultState, Action } from "./logic.js";
+import { defaultState, Action, AppState } from "./logic.js";
 import { update } from "./update.js";
 import { updateScreen } from "./render.js";
 import { selectionLength } from "./selection.js";
@@ -44,6 +44,19 @@ function startSpeaking(offset: number, text: string) {
   speechSynthesis.speak(currentUtterance);
 }
 
+function toggleSpeaking() {
+  if ("read" in state) {
+    if ("pausedAt" in state.read.playState) {
+      const sentence = state.read.sentences[state.read.current];
+      const speechStr = sentence.substr(state.read.playState.pausedAt);
+      startSpeaking(state.read.playState.pausedAt, speechStr);
+    } else if ("playing" in state.read.playState) {
+      userStopped = true;
+      speechSynthesis.cancel();
+    }
+  }
+}
+
 function onClick(e: MouseEvent) {
   if (e.target instanceof HTMLElement) {
     if (e.target.matches("main.input-text-screen > div >button")) {
@@ -59,18 +72,11 @@ function onClick(e: MouseEvent) {
       else throw new Error(`Could not find textarea`);
     }
 
-    if (e.target.matches("main.reader-screen > .controls .play")) {
-      if ("read" in state && "pausedAt" in state.read.playState) {
-        const sentence = state.read.sentences[state.read.current];
-        const speechStr = sentence.substr(state.read.playState.pausedAt);
-        startSpeaking(state.read.playState.pausedAt, speechStr);
-      }
-    }
+    if (e.target.matches("main.reader-screen > .controls .play"))
+      toggleSpeaking();
 
-    if (e.target.matches("main.reader-screen > .controls .pause")) {
-      userStopped = true;
-      speechSynthesis.cancel();
-    }
+    if (e.target.matches("main.reader-screen > .controls .pause"))
+      toggleSpeaking();
 
     if (e.target.matches("main.reader-screen > .controls .prev"))
       fireAction({ changeSentence: -1 });
@@ -127,8 +133,17 @@ function onChange(e: Event) {
   }
 }
 
+function onKeyDown(e: KeyboardEvent) {
+  if ("read" in state) {
+    if (e.key === "ArrowUp") fireAction({ changeSentence: -1 });
+    if (e.key === "ArrowDown") fireAction({ changeSentence: 1 });
+    if (e.key === " ") toggleSpeaking();
+  }
+}
+
 document.body.addEventListener("click", onClick);
 document.body.addEventListener("change", onChange);
+document.body.addEventListener("keydown", onKeyDown);
 
 speechSynthesis.getVoices();
 updateScreen(undefined, state);

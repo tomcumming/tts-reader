@@ -151,7 +151,7 @@ function updateSettings(
 }
 
 function changeSentence(state: AppState, delta: number): AppState {
-  if ("read" in state) {
+  if ("read" in state && "pausedAt" in state.read.playState) {
     return {
       settings: state.settings,
       read: {
@@ -164,7 +164,7 @@ function changeSentence(state: AppState, delta: number): AppState {
       },
     };
   } else {
-    console.warn("Changed sentence while not reading");
+    console.warn("Changed sentence while not reading paused");
     return state;
   }
 }
