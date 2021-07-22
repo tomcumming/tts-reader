@@ -138,6 +138,7 @@ function onKeyDown(e: KeyboardEvent) {
     if (e.key === "ArrowUp") fireAction({ changeSentence: -1 });
     if (e.key === "ArrowDown") fireAction({ changeSentence: 1 });
     if (e.key === " ") toggleSpeaking();
+    if (e.key === "ArrowLeft") fireAction({ moveBackWord: true });
   }
 }
 

@@ -1,4 +1,10 @@
-import { AppState, Action, sentences, Settings } from "./logic.js";
+import {
+  AppState,
+  Action,
+  sentences,
+  Settings,
+  moveToLastWord,
+} from "./logic.js";
 
 export function update(state: AppState, action: Action): AppState {
   if ("inputText" in action)
@@ -22,6 +28,7 @@ export function update(state: AppState, action: Action): AppState {
   else if ("changeSentence" in action)
     return changeSentence(state, action.changeSentence);
   else if ("selectText" in action) return selectText(state);
+  else if ("moveBackWord" in action) return moveBackWord(state);
 
   throw new Error(`Unexpected action`);
 }
@@ -174,4 +181,25 @@ function selectText(state: AppState): AppState {
     settings: state.settings,
     inputText: true,
   };
+}
+
+function moveBackWord(state: AppState): AppState {
+  if ("read" in state && "pausedAt" in state.read.playState) {
+    const currentSentence = state.read.sentences[state.read.current];
+    const newPosition = moveToLastWord(
+      currentSentence,
+      state.read.playState.pausedAt
+    );
+    return {
+      settings: state.settings,
+      read: {
+        sentences: state.read.sentences,
+        current: state.read.current,
+        playState: { pausedAt: newPosition },
+      },
+    };
+  } else {
+    console.warn("Move back word while not reading paused");
+    return state;
+  }
 }
